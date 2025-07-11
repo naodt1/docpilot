@@ -1,0 +1,16 @@
+{
+  "name": "filepilot_frontend",
+  "version": "1.0.0",
+  "description": "Electron frontend for FilePilot AI organizer",
+  "main": "main.js", 
+  "scripts": {
+    "start": "electron .", 
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "electron": "^37.2.0"
+  }
+}
