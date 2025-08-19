@@ -3,7 +3,7 @@ import os
 
 # Ollama Configuration
 OLLAMA_HOST = os.getenv('OLLAMA_HOST', 'http://localhost:11434')
-OLLAMA_MODEL = os.getenv('OLLAMA_MODEL', 'phi3') # You can change this to a model you have pulled, e.g., 'llama2', 'mistral'
+OLLAMA_MODEL = os.getenv('OLLAMA_MODEL', 'phi3:mini') # You can change this to a model you have pulled, e.g., 'llama2', 'mistral'
 
 # Flask Configuration
 FLASK_PORT = os.getenv('FLASK_PORT', 5000)

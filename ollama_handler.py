@@ -1,17 +1,50 @@
 # ollama_handler.py
 import ollama
+import subprocess
 from config import OLLAMA_HOST, OLLAMA_MODEL
 
 class OllamaHandler:
+    """
+    Handler class for interacting with the Ollama API to analyze file content and suggest file names.
+    """
+
     def __init__(self, host=OLLAMA_HOST, model=OLLAMA_MODEL):
+        """
+        Initialize the Ollama client with the specified host and model.
+        Ensures the required model is available locally.
+
+        Args:
+            host (str): The Ollama server host.
+            model (str): The Ollama model to use.
+        """
         self.client = ollama.Client(host=host)
         self.model = model
+        self.ensure_model()
+
+    def ensure_model(self):
+        """
+        Ensure the specified Ollama model is pulled and ready for use.
+        Pulls the model via subprocess; logs errors if any occur.
+        """
+        try:
+            # Use subprocess to pull the model to ensure it's downloaded locally
+            subprocess.run(["ollama", "pull", self.model], check=True)
+            print(f"Ollama model '{self.model}' is ready.")
+        except Exception as e:
+            # Log any errors during model pulling; client may fail if model is missing
+            print(f"Error pulling model '{self.model}': {e}")
 
     def analyze_content(self, content: str) -> dict:
         """
-        Analyzes file content using Ollama to determine its category and suggest a new name.
+        Analyze the given file content to determine its category and suggest a new file name.
+
+        Args:
+            content (str): The textual content of the file to analyze.
+
+        Returns:
+            dict: A dictionary with keys 'category' (str) and 'new_name_suggestion' (str or None).
+                  If category is 'Miscellaneous', 'new_name_suggestion' will be None.
         """
-        # Expanded and refined category rules
         category_rules = """
         - 'Business': Business plans, reports, proposals, meeting minutes, strategies, marketing materials.
             - Name Suggestion: Focus on type and topic (e.g., 'Q3 Business Review', 'Marketing Strategy Plan').
@@ -37,7 +70,6 @@ class OllamaHandler:
             - Name Suggestion: Title of presentation (e.g., 'Annual Sales Pitch', 'Project Status Meeting Slides').
         - 'Miscellaneous': For content that is empty, too brief, cannot be clearly identified, or does not fit any other category.
             - Name Suggestion: In this case, `new_name_suggestion` MUST be `null`.
-
         """
 
         prompt = f"""
@@ -58,22 +90,30 @@ class OllamaHandler:
         ---
         """
         try:
+            # Send the prompt to Ollama API requesting JSON output for easier parsing
             response = self.client.chat(
                 model=self.model,
                 messages=[{'role': 'user', 'content': prompt}],
-                format='json' # Request JSON output from Ollama
+                format='json'  # Request JSON output from Ollama
             )
-            # Ollama's chat response structure: response['message']['content']
             import json
+            # Parse and return the JSON response from Ollama
             return json.loads(response['message']['content'])
         except Exception as e:
+            # On failure, log error and return default category with no suggestion
             print(f"Error communicating with Ollama: {e}")
             return {"category": "Miscellaneous", "new_name_suggestion": None}
 
-    # You might want more specific analysis functions later
     def suggest_rename(self, content: str, current_name: str) -> str:
         """
-        Suggests a new name for a file based on its content.
+        Suggest a new, concise, and descriptive file name based on file content.
+
+        Args:
+            content (str): The textual content of the file.
+            current_name (str): The current file name (without extension) used as fallback.
+
+        Returns:
+            str: A suggested new file name (max 7 words, no extension). Returns current_name if unable to suggest.
         """
         prompt = f"""
                 You are a file naming assistant. Your goal is to generate a new, highly descriptive, and concise name for a file based on its content.
@@ -92,18 +132,20 @@ class OllamaHandler:
                 ---
                 """
         try:
+            # Request a simple text response with the suggested new name
             response = self.client.chat(
                 model=self.model,
                 messages=[{'role': 'user', 'content': prompt}],
             )
-            # Ollama's chat response structure: response['message']['content']
+            # Return the text content of the response as the new file name suggestion
             return response['message']['content'].strip()
         except Exception as e:
+            # On failure, log error and fallback to current name
             print(f"Error suggesting rename with Ollama: {e}")
             return current_name
 
-# Example Usage (for testing)
 if __name__ == "__main__":
+    # Quick local testing block - can be removed or commented out in production
     ollama_h = OllamaHandler()
     test_content = "This document contains my monthly budget for July 2025, including income and expenses."
     analysis = ollama_h.analyze_content(test_content)
