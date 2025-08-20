@@ -97,7 +97,7 @@ def manual_file_action():
     """
     Performs manual file operations such as moving or renaming files.
     
-    Expects JSON payload with:
+    Expects JSON payload with:a
         - action_type (str): Either 'move' or 'rename'.
         - original_path (str): Current full path of the file.
         - target_path (str): For 'move', the new directory path; for 'rename', the new full file path.
