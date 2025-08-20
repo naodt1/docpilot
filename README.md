@@ -1,6 +1,6 @@
 # DocPilot AI Organizer
 
-<img src="assets/logo.jpg" alt="DocPilot Screenshot" width="800" height="400"/>
+<img src="assets/logo.jpg" alt="DocPilot Screenshot" width="300" height="300"/>
 
 ![DocPilot Screenshot](assets/screenshot.png) DocPilot AI Organizer is a powerful desktop application built with Electron, designed to revolutionize your file management. Leveraging the power of local Artificial Intelligence (Ollama), DocPilot intelligently analyzes your file content, categorizes it, and suggests descriptive new names, helping you maintain an organized and efficient digital workspace.
 
