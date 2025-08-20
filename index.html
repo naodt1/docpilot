@@ -16,6 +16,45 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
+    
+    <style>
+        .ui-log-container {
+            margin-top: 20px;
+            border-top: 1px solid #e0e0e0;
+            padding-top: 15px;
+        }
+        .ui-log-container h4 {
+            margin: 0 0 10px 0;
+            color: #555;
+            font-size: 1em;
+            font-weight: 500;
+        }
+        .ui-log-display {
+            background-color: #f9f9f9;
+            border: 1px solid #e0e0e0;
+            border-radius: 4px;
+            padding: 10px;
+            max-height: 120px; /* Limit height */
+            overflow-y: auto; /* Enable scrolling */
+            font-size: 0.85em;
+            color: #333;
+        }
+        .ui-log-display p {
+            margin: 0 0 5px;
+            padding: 0;
+            border-bottom: 1px dashed #eee;
+            padding-bottom: 4px;
+        }
+        .ui-log-display p:last-child {
+            border-bottom: none;
+            margin-bottom: 0;
+        }
+        /* Style for different log types */
+        .ui-log-display .log-info { color: #333; }
+        .ui-log-display .log-success { color: #1a7431; }
+        .ui-log-display .log-error { color: #c92a2a; }
+    </style>
+
 </head>
 <body>
     <div class="app-container">
@@ -73,7 +112,13 @@
                     </div>
                     <div class="status-message" id="organizeStatus"></div>
                 </div>
-            </section>
+
+                <div class="ui-log-container" id="uiLogContainer">
+                    <h4>Recent Activity:</h4>
+                    <div class="ui-log-display" id="uiLogDisplay">
+                        </div>
+                </div>
+                </section>
         </main>
 
         <footer class="app-footer">

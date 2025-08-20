@@ -1,5 +1,4 @@
-
-const FLASK_BACKEND_URL = 'http://127.0.0.1:5000'; 
+const FLASK_BACKEND_URL = 'http://127.0.0.1:5000';
 
 // --- DOM Element References ---
 // Main UI elements
@@ -37,8 +36,9 @@ const scheduleRenameFilesCheckbox = document.getElementById('scheduleRenameFiles
 const saveScheduleBtn = document.getElementById('saveScheduleBtn');
 const scheduleStatus = document.getElementById('scheduleStatus');
 
-// Activity Log specific elements (inside modal)
-const activityLogList = document.getElementById('activityLogList');
+// Activity Log specific elements
+const activityLogList = document.getElementById('activityLogList'); // For the modal
+const uiLogDisplay = document.getElementById('uiLogDisplay'); // *** NEW: For the main UI ***
 
 // --- Global State ---
 let currentDirectory = ''; // Stores the single selected directory path
@@ -56,15 +56,27 @@ function clearStatus(element) {
     element.style.display = 'none';
 }
 
+// *** MODIFIED FUNCTION TO LOG TO BOTH MODAL AND UI ***
 function addLogEntry(message, type = 'info') {
-    const li = document.createElement('li');
     const timestamp = new Date().toLocaleString('en-US', { hour12: false });
+
+    // 1. Add to the modal log (as before)
+    const li = document.createElement('li');
     li.className = `log-entry ${type}`;
     li.innerHTML = `<span>[${timestamp}]</span> ${message}`;
-    activityLogList.prepend(li); // Add to the top of the log
-    // Optional: Keep log list from getting too long
+    activityLogList.prepend(li);
     if (activityLogList.children.length > 50) {
         activityLogList.removeChild(activityLogList.lastChild);
+    }
+
+    // 2. Add to the main UI log display
+    const p = document.createElement('p');
+    p.className = `log-${type}`; // Use simple classes for UI styling
+    p.textContent = `[${timestamp.split(' ')[1]}] ${message}`; // Shorter timestamp for UI
+    uiLogDisplay.prepend(p);
+    // Keep UI log from getting too long
+    if (uiLogDisplay.children.length > 10) {
+        uiLogDisplay.removeChild(uiLogDisplay.lastChild);
     }
 }
 
@@ -89,12 +101,12 @@ async function openDirectoryDialogAndList() {
             const directoryPath = await window.electronAPI.openDirectoryDialog();
             if (directoryPath) {
 
-                const normalizedPath = directoryPath.replace(/\\/g, '/'); 
+                const normalizedPath = directoryPath.replace(/\\/g, '/');
                 // -------------------------------------------------------------------
 
                 targetDirInput.value = normalizedPath; // Update input field
                 console.log(`Selected directory: ${normalizedPath}`);
-                currentDirectory = normalizedPath;     // Update global state variable
+                currentDirectory = normalizedPath; // Update global state variable
                 addLogEntry(`Directory selected: ${normalizedPath}`, 'info');
                 await listFilesInDirectory(normalizedPath); // Pass the normalized path to the listing function
             }
@@ -110,13 +122,7 @@ async function openDirectoryDialogAndList() {
     } else {
         // ... (rest of the non-electron handling) ...
         console.warn('window.electronAPI is not available. Running in a standard browser might limit functionality.');
-        // For local browser testing on Windows without Electron, you might manually set a path here
-        // and ensure it uses forward slashes or double backslashes:
-        // const testPath = "C:/Users/YourUser/Downloads"; // Example with forward slashes
-        // const testPath = "C:\\\\Users\\\\YourUser\\\\Downloads"; // Example with double backslashes
-        // targetDirInput.value = testPath;
-        // currentDirectory = testPath;
-        // listFilesInDirectory(currentDirectory);
+        addLogEntry('Electron API not available. Functionality is limited.', 'error');
         organizeNowBtn.disabled = true;
         openScheduleModalBtn.disabled = true;
         refreshFilesBtn.disabled = true;
@@ -128,7 +134,7 @@ async function listFilesInDirectory(directoryPath) {
     fileCountSpan.textContent = '0';
     clearStatus(fileListStatus);
     displayStatus(fileListStatus, 'Fetching files...', 'info');
-    
+
     // Always enable refresh button when a directory is chosen
     refreshFilesBtn.disabled = false;
 
@@ -149,9 +155,9 @@ async function listFilesInDirectory(directoryPath) {
             if (files.length > 0) {
                 const previewUl = document.createElement('ul');
                 previewUl.className = 'preview-list';
-for (const file of files.slice(0, 7)) { // Use a for...of loop for async/await
+                for (const file of files.slice(0, 7)) { // Use a for...of loop for async/await
                     const li = document.createElement('li');
-                    
+
                     // --- FIX IS HERE ---
                     const fileName = await window.electronAPI.pathBasename(file); // AWAIT the promise
                     // --- END FIX ---
@@ -331,25 +337,26 @@ saveScheduleBtn.addEventListener('click', async () => {
 
     try {
         const response = await fetch(`${FLASK_BACKEND_URL}/save_schedule`, {
-             method: 'POST',
-             headers: { 'Content-Type': 'application/json' },
-             body: JSON.stringify({
-                 directory: targetDirectory,
-                 schedule_type: scheduleType,
-                 schedule_time: scheduleTime,
-                 rename_files: scheduleRenameFiles
-             })
-         });
-         const result = await response.json();
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                directory: targetDirectory,
+                schedule_type: scheduleType,
+                schedule_time: scheduleTime,
+                rename_files: scheduleRenameFiles
+            })
+        });
+        const result = await response.json();
 
-         if (response.ok && result.status === 'success') {
-             // MODIFIED LINE HERE: Use window.electronAPI.pathBasename
-             displayStatus(scheduleStatus, `Schedule saved successfully for "${window.electronAPI.pathBasename(targetDirectory)}"! Type: ${scheduleType} Time: ${scheduleTime}`, 'success');
-             addLogEntry(`Schedule saved: Type=${scheduleType}, Time=${scheduleTime}, Directory=${targetDirectory}.`, 'success');
-         } else {
-             displayStatus(scheduleStatus, `Error saving schedule: ${result.message || 'Unknown error.'}`, 'error');
-             addLogEntry(`Failed to save schedule: ${result.message || 'Unknown error.'}`, 'error');
-         }
+        if (response.ok && result.status === 'success') {
+            // MODIFIED LINE HERE: Use window.electronAPI.pathBasename
+            const baseDir = await window.electronAPI.pathBasename(targetDirectory);
+            displayStatus(scheduleStatus, `Schedule saved successfully for "${baseDir}"! Type: ${scheduleType} Time: ${scheduleTime}`, 'success');
+            addLogEntry(`Schedule saved: Type=${scheduleType}, Time=${scheduleTime}, Directory=${targetDirectory}.`, 'success');
+        } else {
+            displayStatus(scheduleStatus, `Error saving schedule: ${result.message || 'Unknown error.'}`, 'error');
+            addLogEntry(`Failed to save schedule: ${result.message || 'Unknown error.'}`, 'error');
+        }
     } catch (error) {
         console.error('Error saving schedule:', error);
         displayStatus(scheduleStatus, `Network error saving schedule: ${error.message}. Ensure Flask endpoint '/save_schedule' exists.`, 'error');

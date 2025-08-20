@@ -523,3 +523,66 @@ select:focus-visible {
     outline: 2px solid var(--color-orange);
     outline-offset: 2px;
 }
+
+/* logging section*/
+/* --- UI Log Display (Themed for Dark Mode) --- */
+.ui-log-container {
+    margin-top: var(--spacing-lg);
+    border-top: 1px solid var(--color-border);
+    padding-top: var(--spacing-md);
+}
+
+.ui-log-container h4 {
+    margin: 0 0 var(--spacing-sm) 0;
+    color: var(--color-text-secondary); /* Use secondary text color for the heading */
+    font-size: 1em;
+    font-weight: 500;
+}
+
+.ui-log-display {
+    background-color: var(--color-background); /* Match the app's base background */
+    border: 1px solid var(--color-border);
+    border-radius: var(--border-radius);
+    padding: var(--spacing-sm);
+    max-height: 120px; /* Limit height */
+    overflow-y: auto; /* Enable scrolling */
+    font-size: 0.85em;
+    color: var(--color-text-primary);
+    scrollbar-width: thin;
+    scrollbar-color: var(--color-border) var(--color-background);
+}
+
+/* Custom scrollbar for Webkit browsers */
+.ui-log-display::-webkit-scrollbar {
+    width: 8px;
+}
+.ui-log-display::-webkit-scrollbar-track {
+    background: var(--color-background);
+}
+.ui-log-display::-webkit-scrollbar-thumb {
+    background-color: var(--color-border);
+    border-radius: 4px;
+}
+
+.ui-log-display p {
+    margin: 0 0 5px;
+    padding: 0;
+    border-bottom: 1px dashed var(--color-border);
+    padding-bottom: 4px;
+}
+
+.ui-log-display p:last-child {
+    border-bottom: none;
+    margin-bottom: 0;
+}
+
+/* Style for different log types using theme variables */
+.ui-log-display .log-info {
+    color: var(--color-text-primary); /* Default text color for info */
+}
+.ui-log-display .log-success {
+    color: var(--color-success); /* Green for success */
+}
+.ui-log-display .log-error {
+    color: var(--color-error); /* Red for error */
+}
