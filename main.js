@@ -6,25 +6,33 @@ function createWindow() {
   const mainWindow = new BrowserWindow({
     width: 1000,
     height: 900,
+    title: "DocPilot AI Organizer", // Sets window title
     webPreferences: {
-      preload: path.join(__dirname, 'preload.js'), // Recommended for security
-      nodeIntegration: false, // Recommended for security
-      contextIsolation: true // Recommended for security
+      preload: path.join(__dirname, 'preload.js'),
+      nodeIntegration: false,
+      contextIsolation: true
     },
-     icon: path.join(__dirname, 'icons', 'logo.ico')
+    icon: path.join(__dirname, 'icons', 'logo.ico') // Windows/Linux icon
   });
 
   // Load the index.html of the app.
   mainWindow.loadFile('index.html');
 
-  // Open the DevTools.
+  // Open DevTools if needed
   // mainWindow.webContents.openDevTools();
 }
 
-// This method will be called when Electron has finished
-// initialization and is ready to create browser windows.
-// Some APIs can only be used after this event occurs.
+// Set macOS dock icon
 app.whenReady().then(() => {
+  if (process.platform === 'darwin') {
+    try {
+      const iconPath = path.resolve(__dirname, 'icons', 'translogo.png'); // must exist
+      app.dock.setIcon(iconPath);
+    } catch (err) {
+      console.warn('Failed to set dock icon:', err);
+    }
+  }
+
   createWindow();
 
   app.on('activate', () => {
@@ -34,28 +42,22 @@ app.whenReady().then(() => {
   });
 });
 
-// Quit when all windows are closed, except on macOS. There, it's common
-// for applications and their menu bar to stay active until the user quits
-// explicitly with Cmd + Q.
+// Quit when all windows are closed, except on macOS
 app.on('window-all-closed', () => {
   if (process.platform !== 'darwin') {
     app.quit();
   }
 });
 
-
+// Directory picker
 ipcMain.handle('dialog:openDirectory', async () => {
   const { canceled, filePaths } = await dialog.showOpenDialog({
     properties: ['openDirectory']
   });
-  if (canceled) {
-    return null;
-  } else {
-    return filePaths[0]; // Return the selected directory path
-  }
+  return canceled ? null : filePaths[0];
 });
 
+// Get basename
 ipcMain.handle('path:basename', (event, filePath) => {
   return path.basename(filePath);
 });
-
