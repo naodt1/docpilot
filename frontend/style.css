@@ -586,3 +586,29 @@ select:focus-visible {
 .ui-log-display .log-error {
     color: var(--color-error); /* Red for error */
 }
+
+
+/* Upcoming features */
+.upcoming-feature-notice {
+    background-color: #e3f2fd;
+    border-left: 4px solid #2196f3;
+    padding: 15px;
+    border-radius: 4px;
+    margin-bottom: 15px;
+}
+
+.upcoming-feature-notice i {
+    color: #2196f3;
+    margin-right: 8px;
+}
+
+.upcoming-feature-notice strong {
+    color: #1565c0;
+    display: block;
+    margin-bottom: 5px;
+}
+
+.upcoming-feature-notice p {
+    margin: 5px 0 0 0;
+    color: #424242;
+}

@@ -232,6 +232,69 @@ refreshFilesBtn.addEventListener('click', () => {
     }
 });
 
+
+openScheduleModalBtn.addEventListener('click', () => {
+    if (!currentDirectory) {
+        displayStatus(organizeStatus, 'Please select a directory first.', 'error');
+        addLogEntry('Cannot open schedule modal: No directory selected', 'error');
+        return;
+    }
+    
+    // Show upcoming feature message
+    scheduleStatus.innerHTML = `
+        <div class="upcoming-feature-notice">
+            <i class="fas fa-info-circle"></i>
+            <strong>Scheduled Organization - Coming Soon!</strong>
+            <p>This feature is currently in development and will allow you to automatically organize files on a schedule.</p>
+        </div>
+    `;
+    scheduleStatus.style.display = 'block';
+    
+    // Update the directory display in the modal
+    scheduledDirDisplay.textContent = currentDirectory;
+    
+    // Show the modal
+    scheduleModal.style.display = 'block';
+    
+    // Add to log
+    addLogEntry('Opened schedule modal (upcoming feature)', 'info');
+});
+
+// Save Schedule - Update to show feature coming soon
+saveScheduleBtn.addEventListener('click', () => {
+    // Show message that this is an upcoming feature
+    scheduleStatus.innerHTML = `
+        <div class="upcoming-feature-notice">
+            <i class="fas fa-info-circle"></i>
+            <strong>Feature Coming Soon!</strong>
+            <p>Scheduled organization will be available in a future update. Thank you for your interest!</p>
+        </div>
+    `;
+    scheduleStatus.style.display = 'block';
+    
+    // Add to log
+    addLogEntry('Attempted to save schedule (feature coming soon)', 'info');
+    
+    // Optionally close the modal after a delay
+    setTimeout(() => {
+        scheduleModal.style.display = 'none';
+        addLogEntry('Schedule modal closed automatically', 'info');
+    }, 3000);
+});
+
+// Close schedule modal button
+closeScheduleModalBtn.addEventListener('click', () => {
+    scheduleModal.style.display = 'none';
+    addLogEntry('Schedule modal closed manually', 'info');
+});
+
+// Close modal if clicking outside content
+scheduleModal.addEventListener('click', (e) => {
+    if (e.target === scheduleModal) {
+        scheduleModal.style.display = 'none';
+        addLogEntry('Schedule modal closed by clicking outside', 'info');
+    }
+});
 // Organize Now
 organizeNowBtn.addEventListener('click', async () => {
     clearStatus(organizeStatus);
