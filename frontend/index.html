@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DocPilot</title>
+    <meta http-equiv="Content-Security-Policy" content="
+        default-src 'self';
+        script-src 'self' 'unsafe-inline';
+        style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://fonts.gstatic.com;
+        font-src 'self' data: https://fonts.gstatic.com;
+        connect-src 'self' http://127.0.0.1:5000;
+    ">
+    <link rel="stylesheet" href="./fontawesome/css/all.min.css">
+    <link rel="stylesheet" href="style.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
+    
+    <style>
+        .ui-log-container {
+            margin-top: 20px;
+            border-top: 1px solid #e0e0e0;
+            padding-top: 15px;
+        }
+        .ui-log-container h4 {
+            margin: 0 0 10px 0;
+            color: #555;
+            font-size: 1em;
+            font-weight: 500;
+        }
+        .ui-log-display {
+            background-color: #f9f9f9;
+            border: 1px solid #e0e0e0;
+            border-radius: 4px;
+            padding: 10px;
+            max-height: 120px; /* Limit height */
+            overflow-y: auto; /* Enable scrolling */
+            font-size: 0.85em;
+            color: #333;
+        }
+        .ui-log-display p {
+            margin: 0 0 5px;
+            padding: 0;
+            border-bottom: 1px dashed #eee;
+            padding-bottom: 4px;
+        }
+        .ui-log-display p:last-child {
+            border-bottom: none;
+            margin-bottom: 0;
+        }
+        /* Style for different log types */
+        .ui-log-display .log-info { color: #333; }
+        .ui-log-display .log-success { color: #1a7431; }
+        .ui-log-display .log-error { color: #c92a2a; }
+    </style>
+
+</head>
+<body>
+    <div class="app-container">
+        <header class="app-header">
+            <div class="logo">
+                <img src="assets/logo.jpg" alt="DocPilot Logo" class="app-logo"> 
+                <h1>DocPilot AI Organizer</h1>
+            </div>
+            <div class="header-actions">
+                <button class="btn btn-secondary" id="openLogModal">
+                    <i class="fas fa-chart-bar icon"></i> Activity Log
+                </button>
+            </div>
+        </header>
+
+        <main class="main-content-area">
+            <section class="section-card main-organization-area">
+                <h2>Select Directory</h2>
+                <div class="form-group input-group">
+                    <input type="text" id="targetDirInput" placeholder="e.g., C:\Users\You\Downloads" readonly>
+                    <button class="btn btn-primary" id="browseTargetDir">
+                        <i class="fas fa-folder-open icon"></i> Browse
+                    </button>
+                </div>
+                <p class="form-description" id="dirDescription">
+                    Choose a folder to instantly see and manage your files.
+                </p>
+
+                <div class="file-preview-actions">
+                    <div class="file-preview-header">
+                        <h3>Files in Directory (<span id="fileCount">0</span>)</h3>
+                        <button class="btn btn-secondary btn-small" id="refreshFilesBtn" disabled>
+                            <i class="fas fa-sync-alt icon"></i> Refresh List
+                        </button>
+                    </div>
+                    
+                    <div class="file-list-preview" id="fileListPreview">
+                        <p class="no-files-selected">No folder selected yet. Click "Browse" to start.</p>
+                    </div>
+                    <div class="status-message" id="fileListStatus"></div>
+
+                    <div class="main-actions-group">
+                        <div class="form-group checkbox-group">
+                            <input type="checkbox" id="renameFilesCheckbox" checked>
+                            <label for="renameFilesCheckbox">Rename files based on content (AI)</label>
+                        </div>
+                        <div class="action-buttons-row">
+                            <button class="btn btn-primary" id="organizeNowBtn" disabled>
+                                <i class="fas fa-rocket icon"></i> Organize Now
+                            </button>
+                            <button class="btn btn-secondary" id="openScheduleModal" disabled>
+                                <i class="fas fa-calendar-alt icon"></i> Schedule Organization
+                            </button>
+                        </div>
+                    </div>
+                    <div class="status-message" id="organizeStatus"></div>
+                </div>
+
+                <div class="ui-log-container" id="uiLogContainer">
+                    <h4>Recent Activity:</h4>
+                    <div class="ui-log-display" id="uiLogDisplay">
+                        </div>
+                </div>
+                </section>
+        </main>
+
+        <footer class="app-footer">
+            <p>&copy; 2025 DocPilot. All rights reserved.</p>
+            <p class="version-info">Node: <span id="node-version"></span> | Chromium: <span id="chrome-version"></span> | Electron: <span id="electron-version"></span></p>
+        </footer>
+    </div>
+
+    <div id="scheduleModal" class="modal">
+        <div class="modal-content">
+            <span class="close-button" id="closeScheduleModal">&times;</span>
+            <h2>Schedule Organization Task</h2>
+            <p class="modal-dir-info">For folder: <strong id="scheduledDirDisplay"></strong></p>
+            <div class="form-group">
+                <label for="scheduleType">Frequency:</label>
+                <select id="scheduleType">
+                    <option value="none">Manual Only</option>
+                    <option value="daily">Daily</option>
+                    <option value="weekly">Weekly</option>
+                    <option value="monthly">Monthly</option>
+                </select>
+            </div>
+            <div class="form-group" id="scheduleTimeGroup" style="display: none;">
+                <label for="scheduleTime">Time (HH:MM):</label>
+                <input type="time" id="scheduleTime" value="03:00">
+            </div>
+            <div class="form-group checkbox-group">
+                <input type="checkbox" id="scheduleRenameFiles" checked>
+                <label for="scheduleRenameFiles">Rename files on schedule</label>
+            </div>
+            <button class="btn btn-primary" id="saveScheduleBtn">
+                <i class="fas fa-save icon"></i> Save Schedule
+            </button>
+            <div id="scheduleStatus" class="status-message"></div>
+        </div>
+    </div>
+
+    <div id="logModal" class="modal">
+        <div class="modal-content">
+            <span class="close-button" id="closeLogModal">&times;</span>
+            <h2>Activity Log</h2>
+            <ul id="activityLogList" class="activity-log-list">
+            </ul>
+        </div>
+    </div>
+
+    <script src="renderer.js"></script>
+</body>
+</html>
