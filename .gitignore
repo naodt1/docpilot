@@ -1,0 +1,26 @@
+# General and Operating System Files
+.DS_Store
+.env
+.idea/
+.vscode/
+
+# Node.js and npm
+node_modules/
+npm-debug.log
+npm-error.log
+
+# Python
+__pycache__/
+*.pyc
+*.pyo
+venv/
+.venv/
+
+# Electron-specific
+dist/
+release/
+
+# Logs and other temporary files
+*.log
+*.tmp
+temp/

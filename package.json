@@ -4,7 +4,10 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start-frontend": "cd frontend && npm start",
+    "start-backend": "cd backend && python app.py",
+    "start": "concurrently \"npm run start-frontend\" \"npm run start-backend\""
   },
   "repository": {
     "type": "git",
@@ -16,5 +19,8 @@
   "bugs": {
     "url": "https://github.com/naodt1/docpilot/issues"
   },
-  "homepage": "https://github.com/naodt1/docpilot#readme"
+  "homepage": "https://github.com/naodt1/docpilot#readme",
+  "devDependencies": {
+    "concurrently": "^9.2.1"
+  }
 }
