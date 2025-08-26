@@ -1,6 +1,6 @@
 # DocPilot
 
-![Logo](assets/logo.jpg)
+<img src="assets/logo.jpg" alt="DocPilot Logo" width="30" height="30">
 
 **DocPilot is your personal AI-powered document assistant.** It uses a local large language model (LLM) to provide a private and powerful way to interact with your documents, all from the comfort of your desktop.
 
