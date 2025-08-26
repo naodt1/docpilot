@@ -12,7 +12,7 @@ function createWindow() {
       nodeIntegration: false,
       contextIsolation: true
     },
-    icon: path.join(__dirname, 'icons', 'logo.ico') // Windows/Linux icon
+    icon: path.join(__dirname, 'icons', '../assets/logo.ico') // Windows/Linux icon
   });
 
   // Load the index.html of the app.
@@ -26,7 +26,7 @@ function createWindow() {
 app.whenReady().then(() => {
   if (process.platform === 'darwin') {
     try {
-      const iconPath = path.resolve(__dirname, 'icons', 'translogo.png'); // must exist
+      const iconPath = path.resolve(__dirname, '../assets/logo.jpg');
       app.dock.setIcon(iconPath);
     } catch (err) {
       console.warn('Failed to set dock icon:', err);

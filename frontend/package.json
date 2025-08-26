@@ -1,16 +1,27 @@
 {
-  "name": "filepilot_frontend",
+  "name": "docpilot_frontend",
   "version": "1.0.0",
-  "description": "Electron frontend for FilePilot AI organizer",
-  "main": "main.js", 
+  "description": "Electron frontend for DocPilot AI organizer",
+  "main": "main.js",
   "scripts": {
-    "start": "electron .", 
+    "start": "electron .",
+    "dist": "electron-builder",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
   "devDependencies": {
-    "electron": "^37.2.0"
+    "electron": "^37.2.0",
+    "electron-builder": "^24.6.0"
+  },
+  "build": {
+    "appId": "com.naodtadele.docpilot",
+    "mac": {
+      "icon": "assets/macos.icns"
+    },
+    "directories": {
+      "buildResources": "assets"
+    }
   }
 }
